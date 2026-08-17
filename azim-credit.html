@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<!--
+  Azim Credit — Системаи идоракунии қарзи «Азим»
+  Тибқи Дастурамали №255 БМТ (тартиби додани қарз ва ҳисоб кардани фоиз)
+  ва Дастурамали №215 БМТ (захира ва фонди пӯшонидани талафоти имконпазир — ФПТИ)
+
+  Ин барномаи соҳибихтисос аст. Нусхабардорӣ бе иҷозати муаллиф манъ аст.
+-->
+<html lang="tj">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azim Credit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --wine-deep:#10192b; --wine:#16223b; --wine-light:#1f2f4d; --panel:#1a2740; --line:#2c3c5c;
+  --gold:#c19a5b; --gold-bright:#e0bd7d; --parchment:#f2ede2; --parchment-dim:#b9c0cf;
+  --green:#5fae76; --green-bg:#173425; --red:#d3695f; --red-bg:#3a2018; --amber:#dba24a; --amber-bg:#3a2f14;
+  --radius:10px; --btn-ink:#1b2438;
+  --bg-glow-1:#1c2c4d; --bg-glow-2:#24345530;
+}
+:root[data-theme="light"]{
+  --wine-deep:#f3efe4; --wine:#ffffff; --wine-light:#ffffff; --panel:#ffffff; --line:#e2ddcf;
+  --gold:#a6793a; --gold-bright:#8a6229; --parchment:#20293c; --parchment-dim:#5b6376;
+  --green:#2f7d46; --green-bg:#e2f3e6; --red:#c1443b; --red-bg:#fbe5e3; --amber:#9c6a1c; --amber-bg:#faf0dc;
+  --btn-ink:#ffffff; --bg-glow-1:#e3dcc6; --bg-glow-2:#d8ceb355;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background: radial-gradient(1200px 600px at 12% -10%, var(--bg-glow-1) 0%, transparent 55%),
+    radial-gradient(1000px 500px at 108% 8%, var(--bg-glow-2) 0%, transparent 50%), var(--wine-deep);
+  color:var(--parchment); font-family:'Inter',sans-serif; min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Fraunces',serif;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+::selection{background:var(--gold);color:var(--btn-ink);}
+a{color:inherit;}
+
+/* ===== login ===== */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.login-card{width:100%;max-width:430px;background:linear-gradient(180deg,var(--wine-light),var(--panel));border:1px solid var(--line);border-radius:18px;padding:42px 38px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6);position:relative;overflow:hidden;}
+.login-card::before{content:"";position:absolute;top:-40%;left:-20%;width:180%;height:180%;background:radial-gradient(circle at 30% 15%, rgba(201,161,59,.12), transparent 55%);pointer-events:none;}
+.seal{width:64px;height:64px;margin:0 auto 14px;display:block;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--gold-bright);background:radial-gradient(circle,rgba(201,161,59,.15),transparent 70%);}
+.login-card h1{font-size:27px;color:var(--parchment);margin:0 0 4px;text-align:center;font-weight:600;letter-spacing:.01em;}
+.login-sub{color:var(--parchment-dim);font-size:13px;margin:0 0 30px;text-align:center;letter-spacing:.03em;text-transform:uppercase;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:7px;}
+select,input[type=password],input[type=text],input[type=number],input[type=date],textarea{width:100%;background:var(--wine-deep);border:1px solid var(--line);color:var(--parchment);padding:11px 13px;border-radius:8px;font-size:14.5px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+select:focus,input:focus,textarea:focus{border-color:var(--gold);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--btn-ink);border:none;padding:12px 20px;border-radius:8px;font-weight:600;font-size:14.5px;cursor:pointer;transition:transform .1s, background .15s;letter-spacing:.01em;}
+.btn:hover{background:var(--gold-bright);}
+.btn:active{transform:scale(.98);}
+.btn.full{width:100%;margin-top:8px;}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--parchment-dim);}
+.btn.ghost:hover{border-color:var(--gold);color:var(--gold-bright);}
+.btn.danger{background:var(--red);color:#2a0f0d;}
+.btn.small{padding:7px 13px;font-size:13px;}
+.login-err{color:var(--red);font-size:13px;margin:-6px 0 14px;}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:42px;}
+.pw-eye{position:absolute;top:50%;right:8px;transform:translateY(-50%);background:transparent;border:none;color:var(--parchment-dim);cursor:pointer;font-size:16px;padding:4px 6px;}
+.login-hint{margin-top:24px;font-size:11.5px;color:#8a7360;line-height:1.6;border-top:1px dashed var(--line);padding-top:16px;}
+
+/* ===== shell ===== */
+#app-screen{display:none;min-height:100vh;}
+.shell{display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:linear-gradient(180deg,#111b30,#0d1526);border-bottom:1px solid var(--line);padding:12px 22px;display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px;position:sticky;top:0;z-index:400;}
+:root[data-theme="light"] .topbar{background:linear-gradient(180deg,#fff,#f8f3e8);}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand .seal{width:34px;height:34px;font-size:15px;flex:none;}
+.brand-text b{display:block;font-family:'Fraunces',serif;font-size:15.5px;color:var(--parchment);letter-spacing:.01em;}
+.brand-text span{font-size:9.5px;color:var(--parchment-dim);letter-spacing:.06em;}
+.branch-badge{padding:5px 12px;border-radius:20px;background:var(--gold);color:var(--btn-ink);font-size:11.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
+.userbox{padding:7px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;white-space:nowrap;}
+.userbox .name{font-weight:600;font-size:12.5px;color:var(--parchment);line-height:1.2;}
+.userbox .role{font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;}
+.lang-fixed{position:fixed;top:14px;right:16px;display:flex;gap:4px;z-index:500;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:3px;box-shadow:0 6px 18px rgba(0,0,0,.35);}
+.toolbar-mini{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:3px;width:fit-content;}
+.lang-btn{padding:5px 11px;border-radius:16px;background:transparent;border:none;color:var(--parchment-dim);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.03em;}
+.lang-btn.active{background:var(--gold);color:var(--btn-ink);}
+nav{display:flex;flex-wrap:wrap;gap:2px;order:3;flex:1 1 100%;border-top:1px solid var(--line);margin-top:2px;padding-top:8px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--parchment-dim);text-decoration:none;font-size:13.5px;cursor:pointer;border:1px solid transparent;white-space:nowrap;}
+.nav-item:hover{background:var(--wine-light);color:var(--parchment);}
+.nav-item.active{background:var(--wine-light);color:var(--gold-bright);border-color:var(--line);font-weight:600;}
+.nav-icon{width:18px;text-align:center;}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.main{padding:28px 36px 60px;overflow-x:hidden;}
+.topline{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:22px;}
+.topline h2{margin:0;font-size:23px;color:var(--parchment);}
+.sub{margin:4px 0 0;color:var(--parchment-dim);font-size:13px;}
+.panel{background:linear-gradient(180deg,var(--wine-light),var(--panel));border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:18px;}
+.grid{display:grid;gap:16px;}
+.grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.grid.cols-2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:1000px){.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr;} .main{padding:20px 16px 50px;}}
+.kpi{padding:18px 20px;}
+.kpi .label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin-bottom:8px;}
+.kpi .val{font-size:26px;font-family:'Fraunces',serif;color:var(--parchment);font-weight:600;}
+.kpi .delta{font-size:12px;margin-top:6px;}
+.kpi .delta.pos{color:var(--green);} .kpi .delta.neg{color:var(--red);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+th{text-align:left;color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;}
+td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--parchment);}
+tr:hover td{background:rgba(201,161,59,.05);}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
+.badge.std{background:var(--green-bg);color:var(--green);}
+.badge.watch{background:var(--amber-bg);color:var(--amber);}
+.badge.sub{background:#3a2a12;color:#e0a94a;}
+.badge.doubt{background:var(--red-bg);color:var(--red);}
+.badge.loss{background:#3a1010;color:#ff6b5c;}
+.badge.active{background:var(--green-bg);color:var(--green);}
+.badge.closed{background:var(--panel);color:var(--parchment-dim);border:1px solid var(--line);}
+.muted{color:var(--parchment-dim);}
+.row-actions{display:flex;gap:6px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(5,4,8,.72);z-index:2000;align-items:center;justify-content:center;padding:24px;}
+.modal-overlay.show{display:flex;}
+.modal-card{position:relative;max-width:640px;width:100%;background:linear-gradient(180deg,var(--wine-light),var(--panel));border:1px solid var(--line);border-radius:16px;padding:30px 28px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6);max-height:88vh;overflow-y:auto;}
+.modal-card.wide{max-width:880px;}
+.modal-close{position:absolute;top:14px;right:16px;font-size:18px;cursor:pointer;color:var(--parchment-dim);background:none;border:none;}
+.modal-card h2{font-size:19px;margin:0 0 18px;color:var(--parchment);}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;border-top:1px solid var(--line);padding-top:18px;}
+.tag-note{font-size:11.5px;color:var(--parchment-dim);background:var(--wine-deep);border:1px solid var(--line);border-radius:8px;padding:10px 12px;line-height:1.6;margin-top:6px;}
+.progress-track{height:6px;border-radius:4px;background:var(--wine-deep);overflow:hidden;}
+.progress-fill{height:100%;background:var(--gold);}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:18px;}
+.tab{padding:10px 16px;font-size:13px;color:var(--parchment-dim);cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:var(--gold-bright);border-color:var(--gold);font-weight:600;}
+.footer-note{text-align:center;font-size:10.5px;color:#7a6350;padding:20px 0 0;letter-spacing:.03em;}
+.empty{text-align:center;padding:40px 20px;color:var(--parchment-dim);font-size:13.5px;}
+.client-photo-box{width:120px;height:120px;border-radius:12px;border:2px dashed var(--line);background:var(--wine-deep);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;flex:none;position:relative;}
+.client-photo-box img{width:100%;height:100%;object-fit:cover;}
+.client-photo-box .ph-label{font-size:11px;color:var(--parchment-dim);text-align:center;padding:6px;line-height:1.4;}
+.client-photo-box:hover{border-color:var(--gold);}
+.doc-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.doc-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--wine-deep);}
+.doc-item .doc-thumb{width:38px;height:38px;border-radius:6px;object-fit:cover;flex:none;background:var(--panel);}
+.doc-item .doc-thumb.file-icon{display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gold);}
+.doc-item .doc-name{flex:1;font-size:12.5px;color:var(--parchment);word-break:break-word;}
+.doc-item .doc-date{font-size:10.5px;color:var(--parchment-dim);white-space:nowrap;}
+.upload-drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--parchment-dim);cursor:pointer;margin-top:10px;}
+.upload-drop:hover{border-color:var(--gold);color:var(--gold-bright);}
+.client-row{cursor:pointer;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;}
+</style>
+</head>
+<body>
+
+<div class="lang-fixed" id="langFixed" style="display:none;">
+  <button class="lang-btn" id="langTj">TJ</button>
+  <button class="lang-btn" id="langRu">RU</button>
+</div>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="seal">АК</div>
+    <h1 id="loginTitle">Azim Credit</h1>
+    <p class="login-sub" id="loginSub">Системаи идоракунии қарз</p>
+    <div id="loginErrBox"></div>
+    <div class="field">
+      <label id="lblUser">Корбар</label>
+      <select id="loginUser">
+        <option value="sysadmin">Админ</option>
+        <option value="admin">Роҳбар</option>
+        <option value="credit">Менеҷери қарзӣ</option>
+        <option value="risk">Эксперти қарзӣ</option>
+      </select>
+    </div>
+    <div class="field">
+      <label id="lblPass">Парол</label>
+      <div class="pw-wrap">
+        <input type="password" id="loginPass" value="1234" placeholder="••••">
+        <button class="pw-eye" id="pwToggle" type="button">👁</button>
+      </div>
+    </div>
+    <button class="btn full" id="loginBtn">Ворид шудан →</button>
+    <div class="login-hint" id="loginHint">
+      Демо-система. Ҳама маблағҳо бо сомонӣ. Ҳисоби фоиз ва захира тибқи мантиқи Дастурамали №255 ва №215-и БМТ анҷом дода мешавад.
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:16px;">
+      <div class="toolbar-mini">
+        <button class="lang-btn" id="langTjLogin">TJ</button>
+        <button class="lang-btn" id="langRuLogin">RU</button>
+      </div>
+      <button class="btn ghost small" id="themeToggleLogin" style="margin-left:8px;">🌓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app-screen">
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="seal">АК</div>
+        <div class="brand-text"><b>Azim Credit</b><span id="brandSub">ИДОРАКУНИИ ҚАРЗ</span></div>
+      </div>
+      <span class="branch-badge">Филиали марказӣ</span>
+      <div class="topbar-right">
+        <button class="btn ghost small" id="themeToggle">🌓</button>
+        <div class="userbox"><div class="name" id="curUserName">—</div><div class="role" id="curUserRole">—</div></div>
+        <button class="btn ghost small" id="logoutBtn" title="Баромад">⏻</button>
+      </div>
+      <nav id="mainNav"></nav>
+    </div>
+    <div class="main" id="mainContent"></div>
+    <div class="footer-note">Azim Credit © Абдуҳакимов Азимҷон Олимович · тибқи Дастурамали №255 ва №215-и БМТ</div>
+  </div>
+</div>
+
+<!-- borrower/loan modal -->
+<div class="modal-overlay" id="loanModal">
+  <div class="modal-card wide">
+    <button class="modal-close" id="loanModalClose">✕</button>
+    <h2 id="loanModalTitle">Кредити нав</h2>
+    <div id="loanModalBody"></div>
+  </div>
+</div>
+
+<!-- repayment modal -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal-card">
+    <button class="modal-close" id="payModalClose">✕</button>
+    <h2>Қайди пардохт</h2>
+    <div id="payModalBody"></div>
+  </div>
+</div>
+
+<!-- loan detail modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-card wide">
+    <button class="modal-close" id="detailModalClose">✕</button>
+    <div id="detailModalBody"></div>
+  </div>
+</div>
+
+<!-- client folder modal -->
+<div class="modal-overlay" id="clientModal">
+  <div class="modal-card wide">
+    <button class="modal-close" id="clientModalClose">✕</button>
+    <div id="clientModalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   AZIM CREDIT — идоракунии қарз тибқи Дастурамали 255 / 215 БМТ
+   ============================================================ */
+let LANG = 'tj';
+let THEME = 'dark';
+let CUR_USER = null;
+let ACTIVE_PAGE = 'dashboard';
+const TODAY = new Date('2026-08-17');
+
+const USERS = {
+  sysadmin: { name:{tj:'Админ', ru:'Админ'}, role:{tj:'Маъмури система', ru:'Системный администратор'} },
+  admin:  { name:{tj:'Роҳбар', ru:'Руководитель'}, role:{tj:'Мудири филиал', ru:'Заведующий филиалом'} },
+  credit: { name:{tj:'Менеҷери қарзӣ', ru:'Кредитный менеджер'}, role:{tj:'Дастрасии миёна', ru:'Средний доступ'} },
+  risk:   { name:{tj:'Эксперти қарзӣ', ru:'Кредитный эксперт'}, role:{tj:'Дастрасии амалиётӣ', ru:'Операционный доступ'} },
+};
+
+/* ---------- Таснифи қарз тибқи Дастурамали №215 (ФПТИ) ---------- */
+/* Категорияҳо аз рӯи рӯзҳои кечиктиршуда — амалияи стандартии
+   таснифи қарз, фоизи захира тахминӣ; барои дурустии 100% матни
+   расмии Дастурамалро тасдиқ кунед. */
+const RISK_CATEGORIES = [
+  { key:'standard', days:[0,0],    reserve:0.01, label:{tj:'Стандартӣ', ru:'Стандартный'}, cls:'std' },
+  { key:'watch',     days:[1,30],   reserve:0.10, label:{tj:'Назоратӣ', ru:'Под контролем'}, cls:'watch' },
+  { key:'sub',       days:[31,90],  reserve:0.25, label:{tj:'Ғайристандартӣ', ru:'Субстандартный'}, cls:'sub' },
+  { key:'doubt',     days:[91,180], reserve:0.50, label:{tj:'Шубҳанок', ru:'Сомнительный'}, cls:'doubt' },
+  { key:'loss',      days:[181,999999], reserve:1.00, label:{tj:'Талафотнок', ru:'Безнадёжный'}, cls:'loss' },
+];
+function classify(daysOverdue){
+  return RISK_CATEGORIES.find(c => daysOverdue >= c.days[0] && daysOverdue <= c.days[1]) || RISK_CATEGORIES[0];
+}
+
+/* ---------- Мизоҷон ---------- */
+let BORROWERS = [
+  { id:'B-001', name:'Каримов Фаридун Раҷабович', passport:'A 1234567', phone:'+992 900-11-22-33', address:'ш.Душанбе, кӯч. Рӯдакӣ 45', photo:null, documents:[] },
+  { id:'B-002', name:'Раҳимова Зулфия Сайфуллоевна', passport:'A 2233445', phone:'+992 901-22-33-44', address:'ш.Душанбе, кӯч. Айнӣ 12', photo:null, documents:[] },
+  { id:'B-003', name:'ҶДММ «Сомон Трейд»', passport:'СБТ 000112233', phone:'+992 44-600-11-11', address:'ш.Душанбе, н. Сино', photo:null, documents:[] },
+  { id:'B-004', name:'Назаров Умед Ҳакимович', passport:'A 3344556', phone:'+992 902-33-44-55', address:'н.Ҳисор, кӯч. Марказӣ 3', photo:null, documents:[] },
+];
+
+/* ---------- Қарзҳо ---------- */
+/* amount: маблағи додашуда; rate: фоизи солона (%); termMonths; issueDate;
+   method: 'annuity' | 'declining' (усули ҳисоби фоиз, тибқи Дастурамали 255) */
+let LOANS = [];
+function daysBetween(a,b){ return Math.round((b-a)/86400000); }
+function addMonths(d,n){ const r=new Date(d); r.setMonth(r.getMonth()+n); return r; }
+function fmt(n){ return (Math.round(n*100)/100).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtDate(d){ return d.toLocaleDateString('ru-RU'); }
+
+/* Ҳисоби ҷадвали пардохт бо усули аннуитетӣ (declining-balance interest) — тибқи амалияи Дастурамали 255 */
+function buildSchedule(loan){
+  const n = loan.termMonths, r = loan.rate/100/12, P = loan.amount;
+  const annuity = r===0 ? P/n : P * r / (1-Math.pow(1+r,-n));
+  let balance = P;
+  const sched = [];
+  for(let i=1;i<=n;i++){
+    const interest = balance*r;
+    let principal = annuity - interest;
+    if(i===n) principal = balance;
+    balance -= principal;
+    const due = addMonths(new Date(loan.issueDate), i);
+    sched.push({ n:i, due, principal, interest, payment: principal+interest, balanceAfter: Math.max(balance,0) });
+  }
+  return sched;
+}
+function loanPaidPrincipal(loan){ return loan.payments.reduce((s,p)=>s+p.principal,0); }
+function loanPaidInterest(loan){ return loan.payments.reduce((s,p)=>s+p.interest,0); }
+function loanOutstanding(loan){ return Math.max(loan.amount - loanPaidPrincipal(loan),0); }
+function loanNextDue(loan){
+  const sched = buildSchedule(loan);
+  const paidN = loan.payments.length;
+  return sched[paidN] || null;
+}
+function loanDaysOverdue(loan){
+  if(loanOutstanding(loan) <= 0.01) return 0;
+  const nd = loanNextDue(loan);
+  if(!nd) return 0;
+  const d = daysBetween(nd.due, TODAY);
+  return d>0 ? d : 0;
+}
+function loanStatus(loan){
+  if(loanOutstanding(loan) <= 0.01) return 'closed';
+  return 'active';
+}
+
+function seedLoans(){
+  LOANS = [
+    mkLoan('L-1001','B-001',15000,24,26,'2026-02-10',[9,8,7]),
+    mkLoan('L-1002','B-002',6000,12,28,'2026-05-05',[3]),
+    mkLoan('L-1003','B-003',80000,36,22,'2025-11-20',[8,8,8,8,8,8,8,8]),
+    mkLoan('L-1004','B-004',9000,18,27,'2026-01-15',[]),
+    mkLoan('L-1005','B-001',20000,24,25,'2024-06-01',Array(24).fill(1)),
+  ];
+}
+function mkLoan(id,borrowerId,amount,termMonths,ratePct,issueDate,paidCount){
+  const loan = { id, borrowerId, amount, termMonths, rate:ratePct, issueDate, purpose:'Тиҷоратӣ', officer:'credit', payments:[] };
+  const sched = buildSchedule(loan);
+  let idx=0;
+  paidCount.forEach((flag,i)=>{
+    if(idx>=sched.length) return;
+    const s = sched[idx];
+    loan.payments.push({ n:s.n, date:s.due, principal:s.principal, interest:s.interest, amount:s.principal+s.interest });
+    idx++;
+  });
+  return loan;
+}
+seedLoans();
+
+/* ============================================================
+   ТАРҶУМАҲО
+   ============================================================ */
+const T = {
+  nav_dashboard:{tj:'Хулоса',ru:'Обзор'},
+  nav_loans:{tj:'Қарзҳо',ru:'Кредиты'},
+  nav_new_loan:{tj:'Кредити нав',ru:'Новый кредит'},
+  nav_borrowers:{tj:'Мизоҷон',ru:'Заёмщики'},
+  nav_risk:{tj:'Таснифи хавф / ФПТИ',ru:'Классификация / РВПС'},
+  nav_reports:{tj:'Ҳисоботҳо',ru:'Отчёты'},
+  nav_guide:{tj:'Дастур',ru:'Руководство'},
+  kpi_portfolio:{tj:'Портфели умумӣ',ru:'Общий портфель'},
+  kpi_active:{tj:'Қарзҳои амалкунанда',ru:'Активные кредиты'},
+  kpi_overdue:{tj:'Портфели кечиктиршуда',ru:'Просроченный портфель'},
+  kpi_reserve:{tj:'Захираи ФПТИ',ru:'Резерв РВПС'},
+  col_id:{tj:'№ Қарз',ru:'№ Кредита'},
+  col_borrower:{tj:'Мизоҷ',ru:'Заёмщик'},
+  col_amount:{tj:'Маблағ',ru:'Сумма'},
+  col_rate:{tj:'Фоиз, %',ru:'Ставка, %'},
+  col_outstanding:{tj:'Мондаи қарз',ru:'Остаток'},
+  col_overdue:{tj:'Кечикӣ (рӯз)',ru:'Просрочка (дн.)'},
+  col_category:{tj:'Категория',ru:'Категория'},
+  col_status:{tj:'Ҳолат',ru:'Статус'},
+  col_actions:{tj:'Амал',ru:'Действия'},
+  col_reserve_pct:{tj:'Фоизи захира',ru:'Ставка резерва'},
+  col_reserve_amt:{tj:'Маблағи захира',ru:'Сумма резерва'},
+  btn_view:{tj:'Дидан',ru:'Открыть'},
+  btn_pay:{tj:'Пардохт',ru:'Платёж'},
+  btn_new:{tj:'+ Кредити нав',ru:'+ Новый кредит'},
+  btn_excel:{tj:'⬇ Excel',ru:'⬇ Excel'},
+  search_ph:{tj:'Ҷустуҷӯ аз рӯи мизоҷ ё рақами қарз…',ru:'Поиск по заёмщику или номеру…'},
+  logout_confirm:{tj:'Аз система баромадан мехоҳед?',ru:'Выйти из системы?'},
+};
+function t(key){ return (T[key] && T[key][LANG]) || key; }
+
+/* ============================================================
+   INIT / AUTH
+   ============================================================ */
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', THEME);
+}
+function toggleTheme(){ THEME = THEME==='dark'?'light':'dark'; applyTheme(); }
+function setLang(l){
+  LANG=l;
+  document.getElementById('langTj').classList.toggle('active',l==='tj');
+  document.getElementById('langRu').classList.toggle('active',l==='ru');
+  document.getElementById('langTjLogin').classList.toggle('active',l==='tj');
+  document.getElementById('langRuLogin').classList.toggle('active',l==='ru');
+  applyStaticText();
+  if(CUR_USER) renderNav(), renderPage();
+}
+function applyStaticText(){
+  document.getElementById('loginTitle').textContent = 'Azim Credit';
+  document.getElementById('loginSub').textContent = LANG==='tj' ? 'Системаи идоракунии қарз' : 'Система управления кредитами';
+  document.getElementById('lblUser').textContent = LANG==='tj' ? 'Корбар' : 'Пользователь';
+  document.getElementById('lblPass').textContent = LANG==='tj' ? 'Парол' : 'Пароль';
+  document.getElementById('loginBtn').textContent = LANG==='tj' ? 'Ворид шудан →' : 'Войти →';
+  document.getElementById('loginHint').textContent = LANG==='tj'
+    ? 'Демо-система. Ҳама маблағҳо бо сомонӣ. Ҳисоби фоиз ва захира тибқи мантиқи Дастурамали №255 ва №215-и БМТ анҷом дода мешавад.'
+    : 'Демо-система. Все суммы в сомони. Расчёт процентов и резерва выполняется по логике Инструкции №255 и №215 НБТ.';
+  document.getElementById('brandSub').textContent = LANG==='tj' ? 'ИДОРАКУНИИ ҚАРЗ' : 'УПРАВЛЕНИЕ КРЕДИТАМИ';
+  const opts = document.getElementById('loginUser').options;
+  opts[0].text = LANG==='tj' ? 'Админ' : 'Админ';
+  opts[1].text = LANG==='tj' ? 'Роҳбар' : 'Руководитель';
+  opts[2].text = LANG==='tj' ? 'Менеҷери қарзӣ' : 'Кредитный менеджер';
+  opts[3].text = LANG==='tj' ? 'Эксперти қарзӣ' : 'Кредитный эксперт';
+}
+function doLogin(){
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  const box = document.getElementById('loginErrBox');
+  box.innerHTML='';
+  if(p !== '1234'){
+    box.innerHTML = `<div class="login-err">${LANG==='tj'?'Парол нодуруст аст.':'Неверный пароль.'}</div>`;
+    return;
+  }
+  CUR_USER = u;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  document.getElementById('langFixed').style.display='flex';
+  document.getElementById('curUserName').textContent = USERS[u].name[LANG];
+  document.getElementById('curUserRole').textContent = USERS[u].role[LANG];
+  renderNav();
+  renderPage();
+}
+function doLogout(){
+  if(!confirm(t('logout_confirm'))) return;
+  CUR_USER=null;
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app-screen').style.display='none';
+  document.getElementById('langFixed').style.display='none';
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+const NAV_ITEMS = [
+  { key:'dashboard', icon:'◆' },
+  { key:'loans', icon:'▤' },
+  { key:'borrowers', icon:'☺' },
+  { key:'risk', icon:'⚑' },
+  { key:'reports', icon:'⬇' },
+  { key:'guide', icon:'?' },
+];
+function renderNav(){
+  const nav = document.getElementById('mainNav');
+  nav.innerHTML = NAV_ITEMS.map(it => `
+    <div class="nav-item ${ACTIVE_PAGE===it.key?'active':''}" data-page="${it.key}">
+      <span class="nav-icon">${it.icon}</span><span>${t('nav_'+it.key)}</span>
+    </div>`).join('');
+  nav.querySelectorAll('.nav-item').forEach(el=>{
+    el.onclick = ()=>{ ACTIVE_PAGE = el.dataset.page; renderNav(); renderPage(); };
+  });
+}
+
+/* ============================================================
+   PAGE RENDER ROUTER
+   ============================================================ */
+function renderPage(){
+  const el = document.getElementById('mainContent');
+  el.innerHTML='';
+  if(ACTIVE_PAGE==='dashboard') renderDashboard(el);
+  else if(ACTIVE_PAGE==='loans') renderLoans(el);
+  else if(ACTIVE_PAGE==='borrowers') renderBorrowers(el);
+  else if(ACTIVE_PAGE==='risk') renderRisk(el);
+  else if(ACTIVE_PAGE==='reports') renderReports(el);
+  else if(ACTIVE_PAGE==='guide') renderGuide(el);
+}
+
+/* ---------- helpers ---------- */
+function borrowerName(id){ const b=BORROWERS.find(x=>x.id===id); return b?b.name:id; }
+function portfolioStats(){
+  let total=0, active=0, overdueAmt=0, reserve=0;
+  LOANS.forEach(l=>{
+    const out = loanOutstanding(l);
+    total += out;
+    if(loanStatus(l)==='active') active++;
+    const days = loanDaysOverdue(l);
+    if(days>0) overdueAmt += out;
+    const cat = classify(days);
+    reserve += out*cat.reserve;
+  });
+  return {total, active, overdueAmt, reserve};
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function renderDashboard(el){
+  const s = portfolioStats();
+  el.insertAdjacentHTML('beforeend', `
+    <div class="topline"><div>
+      <h2>${t('nav_dashboard')}</h2>
+      <p class="sub">${LANG==='tj'?'Ҳолати умумии портфели қарзӣ — '+fmtDate(TODAY):'Общее состояние кредитного портфеля — '+fmtDate(TODAY)}</p>
+    </div></div>
+    <div class="grid cols-4">
+      <div class="panel kpi"><div class="label">${t('kpi_portfolio')}</div><div class="val">${fmt(s.total)}</div><div class="delta muted">TJS</div></div>
+      <div class="panel kpi"><div class="label">${t('kpi_active')}</div><div class="val">${s.active}</div><div class="delta muted">${LANG==='tj'?'адад':'шт.'}</div></div>
+      <div class="panel kpi"><div class="label">${t('kpi_overdue')}</div><div class="val" style="color:${s.overdueAmt>0?'var(--red)':'var(--parchment)'}">${fmt(s.overdueAmt)}</div><div class="delta muted">TJS</div></div>
+      <div class="panel kpi"><div class="label">${t('kpi_reserve')}</div><div class="val" style="color:var(--gold-bright)">${fmt(s.reserve)}</div><div class="delta muted">${LANG==='tj'?'тибқи №215':'по №215'}</div></div>
+    </div>
+  `);
+  const panel = document.createElement('div');
+  panel.className='panel';
+  panel.innerHTML = `<h3 style="margin-top:0;">${LANG==='tj'?'Қарзҳои охирин':'Последние кредиты'}</h3>`;
+  const tbl = document.createElement('table');
+  tbl.innerHTML = `<thead><tr><th>${t('col_id')}</th><th>${t('col_borrower')}</th><th>${t('col_amount')}</th><th>${t('col_outstanding')}</th><th>${t('col_category')}</th><th>${t('col_status')}</th></tr></thead><tbody></tbody>`;
+  const tb = tbl.querySelector('tbody');
+  [...LOANS].sort((a,b)=> new Date(b.issueDate)-new Date(a.issueDate)).slice(0,6).forEach(l=>{
+    const cat = classify(loanDaysOverdue(l));
+    const st = loanStatus(l);
+    tb.insertAdjacentHTML('beforeend', `<tr>
+      <td class="mono">${l.id}</td><td>${borrowerName(l.borrowerId)}</td>
+      <td class="mono">${fmt(l.amount)}</td><td class="mono">${fmt(loanOutstanding(l))}</td>
+      <td><span class="badge ${cat.cls}">${cat.label[LANG]}</span></td>
+      <td><span class="badge ${st}">${st==='active'?(LANG==='tj'?'Амалкунанда':'Активный'):(LANG==='tj'?'Пӯшида':'Закрыт')}</span></td>
+    </tr>`);
+  });
+  panel.appendChild(tbl);
+  el.appendChild(panel);
+}
+
+/* ============================================================
+   LOANS LIST
+   ============================================================ */
+function renderLoans(el){
+  el.insertAdjacentHTML('beforeend', `
+    <div class="topline">
+      <div><h2>${t('nav_loans')}</h2><p class="sub">${LANG==='tj'?'Ҷадвали пурраи қарзҳо':'Полный список кредитов'}</p></div>
+      <div style="display:flex;gap:10px;">
+        <input type="text" id="loanSearch" placeholder="${t('search_ph')}" style="width:260px;">
+        <button class="btn" id="btnNewLoan">${t('btn_new')}</button>
+      </div>
+    </div>
+    <div class="panel"><table id="loansTable"><thead><tr>
+      <th>${t('col_id')}</th><th>${t('col_borrower')}</th><th>${t('col_amount')}</th><th>${t('col_rate')}</th>
+      <th>${t('col_outstanding')}</th><th>${t('col_overdue')}</th><th>${t('col_category')}</th><th>${t('col_status')}</th><th>${t('col_actions')}</th>
+    </tr></thead><tbody></tbody></table></div>
+  `);
+  document.getElementById('btnNewLoan').onclick = openNewLoanModal;
+  document.getElementById('loanSearch').oninput = (e)=> renderLoansTable(e.target.value);
+  renderLoansTable('');
+}
+function renderLoansTable(filter){
+  const tb = document.querySelector('#loansTable tbody');
+  tb.innerHTML='';
+  const f = filter.trim().toLowerCase();
+  const rows = LOANS.filter(l => !f || l.id.toLowerCase().includes(f) || borrowerName(l.borrowerId).toLowerCase().includes(f));
+  if(rows.length===0){ tb.innerHTML = `<tr><td colspan="9" class="empty">${LANG==='tj'?'Ҳеҷ чиз ёфт нашуд':'Ничего не найдено'}</td></tr>`; return; }
+  rows.forEach(l=>{
+    const days = loanDaysOverdue(l);
+    const cat = classify(days);
+    const st = loanStatus(l);
+    tb.insertAdjacentHTML('beforeend', `<tr>
+      <td class="mono">${l.id}</td>
+      <td><a data-open-client="${l.borrowerId}" style="color:var(--gold-bright);cursor:pointer;text-decoration:underline;">${borrowerName(l.borrowerId)}</a></td>
+      <td class="mono">${fmt(l.amount)}</td>
+      <td class="mono">${l.rate}</td>
+      <td class="mono">${fmt(loanOutstanding(l))}</td>
+      <td class="mono" style="color:${days>0?'var(--red)':'var(--parchment)'}">${days}</td>
+      <td><span class="badge ${cat.cls}">${cat.label[LANG]}</span></td>
+      <td><span class="badge ${st}">${st==='active'?(LANG==='tj'?'Амалкунанда':'Активный'):(LANG==='tj'?'Пӯшида':'Закрыт')}</span></td>
+      <td class="row-actions">
+        <button class="btn ghost small" data-view="${l.id}">${t('btn_view')}</button>
+        ${st==='active'?`<button class="btn small" data-pay="${l.id}">${t('btn_pay')}</button>`:''}
+      </td>
+    </tr>`);
+  });
+  tb.querySelectorAll('[data-view]').forEach(b=> b.onclick = ()=> openLoanDetail(b.dataset.view));
+  tb.querySelectorAll('[data-pay]').forEach(b=> b.onclick = ()=> openPayModal(b.dataset.pay));
+  tb.querySelectorAll('[data-open-client]').forEach(a=> a.onclick = ()=> openClientFolder(a.dataset.openClient));
+}
+
+/* ---------- new loan modal ---------- */
+function openNewLoanModal(){
+  document.getElementById('loanModalTitle').textContent = LANG==='tj'?'Кредити нав':'Новый кредит';
+  const body = document.getElementById('loanModalBody');
+  body.innerHTML = `
+    <div class="grid cols-2">
+      <div class="field"><label>${LANG==='tj'?'Мизоҷ':'Заёмщик'}</label>
+        <select id="nlBorrower">${BORROWERS.map(b=>`<option value="${b.id}">${b.name}</option>`).join('')}</select>
+      </div>
+      <div class="field"><label>${LANG==='tj'?'Мақсади қарз':'Цель кредита'}</label>
+        <select id="nlPurpose">
+          <option>${LANG==='tj'?'Тиҷоратӣ':'Коммерческий'}</option>
+          <option>${LANG==='tj'?'Истеъмолӣ':'Потребительский'}</option>
+          <option>${LANG==='tj'?'Кишоварзӣ':'Аграрный'}</option>
+          <option>${LANG==='tj'?'Ипотека':'Ипотека'}</option>
+        </select>
+      </div>
+      <div class="field"><label>${LANG==='tj'?'Маблағ (сомонӣ)':'Сумма (сомони)'}</label><input type="number" id="nlAmount" value="10000" min="100"></div>
+      <div class="field"><label>${LANG==='tj'?'Фоизи солона, %':'Годовая ставка, %'}</label><input type="number" id="nlRate" value="24" step="0.1"></div>
+      <div class="field"><label>${LANG==='tj'?'Мӯҳлат (моҳ)':'Срок (мес.)'}</label><input type="number" id="nlTerm" value="12" min="1" max="120"></div>
+      <div class="field"><label>${LANG==='tj'?'Санаи додан':'Дата выдачи'}</label><input type="date" id="nlDate" value="2026-08-17"></div>
+    </div>
+    <div class="tag-note">${LANG==='tj'
+      ? 'Ҷадвали пардохт бо усули аннуитетӣ (фоиз аз мондаи қарз, тибқи мантиқи Дастурамали №255) худкор сохта мешавад.'
+      : 'График платежей строится автоматически аннуитетным методом (проценты на остаток, по логике Инструкции №255).'}</div>
+    <div class="form-actions">
+      <button class="btn ghost" id="nlCancel">${LANG==='tj'?'Бекор':'Отмена'}</button>
+      <button class="btn" id="nlSave">${LANG==='tj'?'Сабт кардан':'Сохранить'}</button>
+    </div>
+  `;
+  document.getElementById('nlCancel').onclick = closeLoanModal;
+  document.getElementById('nlSave').onclick = ()=>{
+    const id = 'L-' + (1000 + LOANS.length + 1);
+    const loan = {
+      id, borrowerId: document.getElementById('nlBorrower').value,
+      amount: parseFloat(document.getElementById('nlAmount').value)||0,
+      termMonths: parseInt(document.getElementById('nlTerm').value)||1,
+      rate: parseFloat(document.getElementById('nlRate').value)||0,
+      issueDate: document.getElementById('nlDate').value,
+      purpose: document.getElementById('nlPurpose').value,
+      officer: CUR_USER, payments: []
+    };
+    LOANS.push(loan);
+    closeLoanModal();
+    renderLoansTable('');
+  };
+  document.getElementById('loanModal').classList.add('show');
+}
+function closeLoanModal(){ document.getElementById('loanModal').classList.remove('show'); }
+document.getElementById('loanModalClose').onclick = closeLoanModal;
+
+/* ---------- repayment modal ---------- */
+function openPayModal(loanId){
+  const loan = LOANS.find(l=>l.id===loanId);
+  const nd = loanNextDue(loan);
+  const body = document.getElementById('payModalBody');
+  body.innerHTML = `
+    <p class="muted" style="font-size:13px;">${LANG==='tj'?'Қарз':'Кредит'} <b class="mono">${loan.id}</b> — ${borrowerName(loan.borrowerId)}</p>
+    ${nd ? `
+    <div class="tag-note">${LANG==='tj'?'Пардохти навбатӣ':'Очередной платёж'} #${nd.n} — ${fmtDate(nd.due)}<br>
+      ${LANG==='tj'?'Асосӣ':'Основной долг'}: <b class="mono">${fmt(nd.principal)}</b> · ${LANG==='tj'?'Фоиз':'Проценты'}: <b class="mono">${fmt(nd.interest)}</b> · ${LANG==='tj'?'Ҷамъ':'Итого'}: <b class="mono">${fmt(nd.payment)}</b></div>
+    <div class="form-actions">
+      <button class="btn ghost" id="payCancel">${LANG==='tj'?'Бекор':'Отмена'}</button>
+      <button class="btn" id="payConfirm">${LANG==='tj'?'Тасдиқ ва сабт':'Подтвердить и сохранить'}</button>
+    </div>` : `<p class="empty">${LANG==='tj'?'Ин қарз пурра пардохта шудааст.':'Этот кредит полностью погашен.'}</p>`}
+  `;
+  if(nd){
+    document.getElementById('payCancel').onclick = closePayModal;
+    document.getElementById('payConfirm').onclick = ()=>{
+      loan.payments.push({ n:nd.n, date:TODAY, principal:nd.principal, interest:nd.interest, amount:nd.payment });
+      closePayModal();
+      renderPage();
+    };
+  }
+  document.getElementById('payModal').classList.add('show');
+}
+function closePayModal(){ document.getElementById('payModal').classList.remove('show'); }
+document.getElementById('payModalClose').onclick = closePayModal;
+
+/* ---------- loan detail modal ---------- */
+function openLoanDetail(loanId){
+  const loan = LOANS.find(l=>l.id===loanId);
+  const sched = buildSchedule(loan);
+  const days = loanDaysOverdue(loan);
+  const cat = classify(days);
+  const body = document.getElementById('detailModalBody');
+  body.innerHTML = `
+    <h2 style="margin:0 0 4px;">${loan.id} <span class="badge ${cat.cls}" style="margin-left:8px;">${cat.label[LANG]}</span></h2>
+    <p class="muted" style="margin:0 0 18px;">${borrowerName(loan.borrowerId)} · ${loan.purpose} · ${fmtDate(new Date(loan.issueDate))}</p>
+    <div class="grid cols-4" style="margin-bottom:18px;">
+      <div class="panel kpi" style="padding:14px 16px;"><div class="label">${LANG==='tj'?'Маблағ':'Сумма'}</div><div class="val" style="font-size:19px;">${fmt(loan.amount)}</div></div>
+      <div class="panel kpi" style="padding:14px 16px;"><div class="label">${LANG==='tj'?'Мондаи қарз':'Остаток'}</div><div class="val" style="font-size:19px;">${fmt(loanOutstanding(loan))}</div></div>
+      <div class="panel kpi" style="padding:14px 16px;"><div class="label">${LANG==='tj'?'Кечикӣ, рӯз':'Просрочка, дн.'}</div><div class="val" style="font-size:19px;color:${days>0?'var(--red)':'var(--parchment)'}">${days}</div></div>
+      <div class="panel kpi" style="padding:14px 16px;"><div class="label">${LANG==='tj'?'Захира ФПТИ':'Резерв РВПС'}</div><div class="val" style="font-size:19px;color:var(--gold-bright);">${fmt(loanOutstanding(loan)*cat.reserve)}</div></div>
+    </div>
+    <h3 style="margin:0 0 10px;font-size:15px;">${LANG==='tj'?'Ҷадвали пардохт':'График платежей'}</h3>
+    <div style="max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:10px;">
+    <table><thead><tr><th>#</th><th>${LANG==='tj'?'Сана':'Дата'}</th><th>${LANG==='tj'?'Асосӣ':'Осн. долг'}</th><th>${LANG==='tj'?'Фоиз':'Проценты'}</th><th>${LANG==='tj'?'Ҷамъ':'Итого'}</th><th>${LANG==='tj'?'Ҳолат':'Статус'}</th></tr></thead>
+    <tbody>${sched.map(s=>{
+      const paid = loan.payments.find(p=>p.n===s.n);
+      return `<tr>
+        <td class="mono">${s.n}</td><td class="mono">${fmtDate(s.due)}</td>
+        <td class="mono">${fmt(s.principal)}</td><td class="mono">${fmt(s.interest)}</td><td class="mono">${fmt(s.payment)}</td>
+        <td>${paid ? `<span class="badge std">${LANG==='tj'?'Пардохта':'Оплачено'}</span>` : (s.due<TODAY?`<span class="badge doubt">${LANG==='tj'?'Кечиктирӣ':'Просрочен'}</span>`:`<span class="badge watch">${LANG==='tj'?'Интизор':'Ожидается'}</span>`)}</td>
+      </tr>`;
+    }).join('')}</tbody></table>
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('show');
+}
+document.getElementById('detailModalClose').onclick = ()=> document.getElementById('detailModal').classList.remove('show');
+
+/* ============================================================
+   BORROWERS
+   ============================================================ */
+function renderBorrowers(el){
+  el.insertAdjacentHTML('beforeend', `
+    <div class="topline">
+      <div><h2>${t('nav_borrowers')}</h2><p class="sub">${LANG==='tj'?'Феҳристи мизоҷон — барои кушодани папкаи шахсӣ рӯи сатр клик кунед':'Реестр заёмщиков — нажмите на строку, чтобы открыть личную папку'}</p></div>
+      <div style="display:flex;gap:10px;">
+        <input type="text" id="clientSearch" placeholder="${t('search_ph')}" style="width:260px;">
+        <button class="btn" id="btnNewClient">${LANG==='tj'?'+ Мизоҷи нав':'+ Новый заёмщик'}</button>
+      </div>
+    </div>
+    <div class="panel"><table id="clientsTable"><thead><tr>
+      <th></th><th>ID</th><th>${LANG==='tj'?'Ном':'ФИО / Название'}</th><th>${LANG==='tj'?'Ҳуҷҷат':'Документ'}</th><th>${LANG==='tj'?'Телефон':'Телефон'}</th><th>${LANG==='tj'?'Суроға':'Адрес'}</th><th>${LANG==='tj'?'Шумораи қарз':'Кредитов'}</th><th>${LANG==='tj'?'Ҳуҷҷатҳо':'Документы'}</th>
+    </tr></thead><tbody></tbody></table></div>
+  `);
+  document.getElementById('clientSearch').oninput = (e)=> renderClientsTable(e.target.value);
+  document.getElementById('btnNewClient').onclick = openNewClientModal;
+  renderClientsTable('');
+}
+function renderClientsTable(filter){
+  const tb = document.querySelector('#clientsTable tbody');
+  tb.innerHTML='';
+  const f = filter.trim().toLowerCase();
+  const rows = BORROWERS.filter(b => !f || b.name.toLowerCase().includes(f) || b.id.toLowerCase().includes(f) || b.passport.toLowerCase().includes(f));
+  if(rows.length===0){ tb.innerHTML = `<tr><td colspan="8" class="empty">${LANG==='tj'?'Ҳеҷ чиз ёфт нашуд':'Ничего не найдено'}</td></tr>`; return; }
+  rows.forEach(b=>{
+    const cnt = LOANS.filter(l=>l.borrowerId===b.id).length;
+    const docCnt = (b.documents||[]).length + (b.photo?1:0);
+    tb.insertAdjacentHTML('beforeend', `<tr class="client-row" data-open="${b.id}">
+      <td>${b.photo?`<img src="${b.photo}" style="width:32px;height:32px;border-radius:7px;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:7px;background:var(--wine-deep);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--parchment-dim);">${b.name.charAt(0)}</div>`}</td>
+      <td class="mono">${b.id}</td><td>${b.name}</td><td class="mono">${b.passport}</td><td class="mono">${b.phone}</td><td>${b.address}</td><td class="mono">${cnt}</td>
+      <td><span class="badge ${docCnt>0?'std':'watch'}">${docCnt} ${LANG==='tj'?'файл':'файл'}</span></td>
+    </tr>`);
+  });
+  tb.querySelectorAll('[data-open]').forEach(tr => tr.onclick = ()=> openClientFolder(tr.dataset.open));
+}
+function openNewClientModal(){
+  const id = 'B-' + String(BORROWERS.length+1).padStart(3,'0');
+  BORROWERS.push({ id, name: LANG==='tj'?'Мизоҷи нав':'Новый заёмщик', passport:'', phone:'', address:'', photo:null, documents:[] });
+  openClientFolder(id);
+}
+
+/* ---------- Папкаи шахсии мизоҷ ---------- */
+function openClientFolder(clientId){
+  const b = BORROWERS.find(x=>x.id===clientId);
+  const body = document.getElementById('clientModalBody');
+  body.innerHTML = `
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:18px;">
+      <div class="client-photo-box" id="photoBox">
+        ${b.photo ? `<img src="${b.photo}">` : `<div class="ph-label">${LANG==='tj'?'Сурати паспорт<br>(клик барои бор кардан)':'Фото паспорта<br>(нажмите чтобы загрузить)'}</div>`}
+      </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none;">
+      <div style="flex:1;min-width:260px;">
+        <div class="grid cols-2">
+          <div class="field"><label>${LANG==='tj'?'Ном ва насаб':'ФИО / Название'}</label><input type="text" id="cfName" value="${b.name}"></div>
+          <div class="field"><label>${LANG==='tj'?'№ Ҳуҷҷат (шиноснома)':'№ Документа (паспорт)'}</label><input type="text" id="cfPassport" value="${b.passport}"></div>
+          <div class="field"><label>${LANG==='tj'?'Телефон':'Телефон'}</label><input type="text" id="cfPhone" value="${b.phone}"></div>
+          <div class="field"><label>${LANG==='tj'?'Суроға':'Адрес'}</label><input type="text" id="cfAddress" value="${b.address}"></div>
+        </div>
+        <button class="btn small" id="cfSave" style="margin-top:6px;">${LANG==='tj'?'Захира кардани маълумот':'Сохранить данные'}</button>
+      </div>
+    </div>
+
+    <h3 style="margin:0 0 4px;font-size:15px;">${LANG==='tj'?'Қарзҳои мизоҷ':'Кредиты заёмщика'}</h3>
+    <div style="margin-bottom:18px;">${
+      LOANS.filter(l=>l.borrowerId===b.id).map(l=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-top:6px;">
+          <span class="mono">${l.id}</span><span>${fmt(l.amount)} TJS</span>
+          <span class="badge ${loanStatus(l)}">${loanStatus(l)==='active'?(LANG==='tj'?'Амалкунанда':'Активный'):(LANG==='tj'?'Пӯшида':'Закрыт')}</span>
+        </div>`).join('') || `<p class="muted" style="font-size:13px;">${LANG==='tj'?'Ҳанӯз қарз надорад.':'Кредитов пока нет.'}</p>`
+    }</div>
+
+    <h3 style="margin:0 0 4px;font-size:15px;">${LANG==='tj'?'Ҳуҷҷатҳои мизоҷ':'Документы заёмщика'}</h3>
+    <p class="muted" style="font-size:12px;margin:0 0 4px;">${LANG==='tj'?'Скани шиноснома, аризаи қарз, маълумотнома аз ҷои кор ва ғайра':'Скан паспорта, заявление на кредит, справка с работы и т.д.'}</p>
+    <div class="upload-drop" id="docUploadDrop">📎 ${LANG==='tj'?'Барои бор кардани ҳуҷҷат клик кунед (сурат ё PDF)':'Нажмите, чтобы загрузить документ (фото или PDF)'}</div>
+    <input type="file" id="docInput" accept="image/*,application/pdf" multiple style="display:none;">
+    <div class="doc-list" id="docList"></div>
+  `;
+  renderDocList(b);
+
+  document.getElementById('photoBox').onclick = ()=> document.getElementById('photoInput').click();
+  document.getElementById('photoInput').onchange = (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{ b.photo = reader.result; openClientFolder(clientId); renderClientsTable(document.getElementById('clientSearch')?document.getElementById('clientSearch').value:''); };
+    reader.readAsDataURL(file);
+  };
+  document.getElementById('docUploadDrop').onclick = ()=> document.getElementById('docInput').click();
+  document.getElementById('docInput').onchange = (e)=>{
+    const files = Array.from(e.target.files);
+    let remaining = files.length;
+    if(remaining===0) return;
+    files.forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        b.documents = b.documents || [];
+        b.documents.push({ name:file.name, type:file.type, data:reader.result, date:new Date() });
+        remaining--;
+        if(remaining===0){ renderDocList(b); renderClientsTable(document.getElementById('clientSearch')?document.getElementById('clientSearch').value:''); }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+  document.getElementById('cfSave').onclick = ()=>{
+    b.name = document.getElementById('cfName').value || b.name;
+    b.passport = document.getElementById('cfPassport').value;
+    b.phone = document.getElementById('cfPhone').value;
+    b.address = document.getElementById('cfAddress').value;
+    renderClientsTable(document.getElementById('clientSearch')?document.getElementById('clientSearch').value:'');
+    closeClientModal();
+  };
+  document.getElementById('clientModal').classList.add('show');
+}
+function renderDocList(b){
+  const list = document.getElementById('docList');
+  const docs = b.documents || [];
+  if(docs.length===0){ list.innerHTML = `<p class="empty" style="padding:16px 0;">${LANG==='tj'?'Ҳанӯз ҳуҷҷат бор карда нашудааст.':'Документы ещё не загружены.'}</p>`; return; }
+  list.innerHTML = docs.map((d,i)=>`
+    <div class="doc-item">
+      ${d.type.startsWith('image/') ? `<img class="doc-thumb" src="${d.data}">` : `<div class="doc-thumb file-icon">📄</div>`}
+      <div class="doc-name">${d.name}</div>
+      <div class="doc-date">${fmtDate(new Date(d.date))}</div>
+      <button class="btn ghost small" data-remove-doc="${i}">✕</button>
+    </div>`).join('');
+  list.querySelectorAll('[data-remove-doc]').forEach(btn=>{
+    btn.onclick = ()=>{ docs.splice(parseInt(btn.dataset.removeDoc),1); renderDocList(b); renderClientsTable(document.getElementById('clientSearch')?document.getElementById('clientSearch').value:''); };
+  });
+}
+function closeClientModal(){ document.getElementById('clientModal').classList.remove('show'); }
+document.getElementById('clientModalClose').onclick = closeClientModal;
+
+/* ============================================================
+   RISK / RESERVE (Дастурамали №215)
+   ============================================================ */
+function renderRisk(el){
+  el.insertAdjacentHTML('beforeend', `
+    <div class="topline"><div><h2>${t('nav_risk')}</h2>
+    <p class="sub">${LANG==='tj'?'Таснифи қарзҳо ва ҳисоби захираи ФПТИ тибқи Дастурамали №215':'Классификация кредитов и расчёт резерва РВПС по Инструкции №215'}</p></div></div>
+  `);
+  const legend = document.createElement('div'); legend.className='panel';
+  legend.innerHTML = `<h3 style="margin-top:0;font-size:14px;">${LANG==='tj'?'Категорияҳои таснифи хавф':'Категории классификации риска'}</h3>
+  <div class="grid cols-3">${RISK_CATEGORIES.map(c=>`
+    <div style="padding:12px 14px;border:1px solid var(--line);border-radius:10px;">
+      <span class="badge ${c.cls}">${c.label[LANG]}</span>
+      <div class="muted" style="font-size:12px;margin-top:8px;">${c.days[1]>=999999? (LANG==='tj'?'зиёда аз '+c.days[0]+' рӯз':'более '+c.days[0]+' дн.') : (LANG==='tj'?c.days[0]+'–'+c.days[1]+' рӯзи кечикӣ':c.days[0]+'–'+c.days[1]+' дн. просрочки')}</div>
+      <div style="font-size:20px;font-family:'Fraunces',serif;margin-top:6px;color:var(--gold-bright);">${(c.reserve*100).toFixed(0)}%</div>
+    </div>`).join('')}</div>
+  <div class="tag-note" style="margin-top:14px;">${LANG==='tj'
+    ? 'Фоизҳои дар боло тахминӣ ва мутобиқи амалияи маъмулии таснифи қарз оварда шудаанд. Барои мутобиқати 100%-и ҳуқуқӣ, лутфан матни аслии Дастурамали №215 (бо тағйиру иловаҳои КРБМТ №171 аз 26.12.2019)-ро пешниҳод кунед, то рақамҳо аниқ карда шаванд.'
+    : 'Указанные ставки резерва являются типовыми (стандартная практика классификации) и должны быть сверены с официальным текстом Инструкции №215 (с изменениями от 26.12.2019) для полного юридического соответствия.'}</div>`;
+  el.appendChild(legend);
+
+  const panel = document.createElement('div'); panel.className='panel';
+  panel.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:14px;">${LANG==='tj'?'Ҳисоби захира аз рӯи ҳар қарз':'Расчёт резерва по каждому кредиту'}</h3><button class="btn ghost small" id="riskExcel">${t('btn_excel')}</button></div>`;
+  const tbl = document.createElement('table');
+  tbl.style.marginTop='14px';
+  tbl.innerHTML = `<thead><tr><th>${t('col_id')}</th><th>${t('col_borrower')}</th><th>${t('col_outstanding')}</th><th>${t('col_overdue')}</th><th>${t('col_category')}</th><th>${t('col_reserve_pct')}</th><th>${t('col_reserve_amt')}</th></tr></thead><tbody></tbody>`;
+  const tb = tbl.querySelector('tbody');
+  let totalReserve=0;
+  LOANS.filter(l=>loanStatus(l)==='active').forEach(l=>{
+    const days = loanDaysOverdue(l);
+    const cat = classify(days);
+    const out = loanOutstanding(l);
+    const res = out*cat.reserve;
+    totalReserve += res;
+    tb.insertAdjacentHTML('beforeend', `<tr>
+      <td class="mono">${l.id}</td><td>${borrowerName(l.borrowerId)}</td>
+      <td class="mono">${fmt(out)}</td><td class="mono">${days}</td>
+      <td><span class="badge ${cat.cls}">${cat.label[LANG]}</span></td>
+      <td class="mono">${(cat.reserve*100).toFixed(0)}%</td>
+      <td class="mono" style="color:var(--gold-bright);">${fmt(res)}</td>
+    </tr>`);
+  });
+  tb.insertAdjacentHTML('beforeend', `<tr><td colspan="6" style="text-align:right;font-weight:700;">${LANG==='tj'?'Ҷамъи захира':'Итого резерв'}</td><td class="mono" style="font-weight:700;color:var(--gold-bright);">${fmt(totalReserve)}</td></tr>`);
+  tbl.appendChild(tb); panel.appendChild(tbl); el.appendChild(panel);
+
+  document.getElementById('riskExcel').onclick = ()=> exportRiskExcel();
+}
+function exportRiskExcel(){
+  const rows = [[
+    LANG==='tj'?'№ Қарз':'№ Кредита', LANG==='tj'?'Мизоҷ':'Заёмщик', LANG==='tj'?'Мондаи қарз':'Остаток',
+    LANG==='tj'?'Кечикӣ (рӯз)':'Просрочка (дн.)', LANG==='tj'?'Категория':'Категория', LANG==='tj'?'Фоизи захира':'Ставка резерва', LANG==='tj'?'Маблағи захира':'Сумма резерва'
+  ]];
+  LOANS.filter(l=>loanStatus(l)==='active').forEach(l=>{
+    const days = loanDaysOverdue(l); const cat = classify(days); const out = loanOutstanding(l);
+    rows.push([l.id, borrowerName(l.borrowerId), out, days, cat.label[LANG], cat.reserve, out*cat.reserve]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'FPTI-215');
+  XLSX.writeFile(wb, 'Azim_Credit_FPTI_215.xlsx');
+}
+
+/* ============================================================
+   REPORTS
+   ============================================================ */
+function renderReports(el){
+  el.insertAdjacentHTML('beforeend', `<div class="topline"><div><h2>${t('nav_reports')}</h2><p class="sub">${LANG==='tj'?'Содироти маълумот ба Excel':'Экспорт данных в Excel'}</p></div></div>`);
+  const items = [
+    { title: LANG==='tj'?'Портфели қарзӣ':'Кредитный портфель', desc: LANG==='tj'?'Рӯйхати пурраи қарзҳо бо мондаи қарз':'Полный список кредитов с остатками', fn: exportPortfolioExcel },
+    { title: LANG==='tj'?'Ҷадвали пардохт (ҳар қарз)':'График платежей (по кредитам)', desc: LANG==='tj'?'Ҳамаи пардохтҳои интизоршаванда ва воқеӣ':'Все ожидаемые и фактические платежи', fn: exportScheduleExcel },
+    { title: LANG==='tj'?'Захираи ФПТИ (№215)':'Резерв РВПС (№215)', desc: LANG==='tj'?'Ҳисоботи таснифи хавф ва захира':'Отчёт по классификации и резерву', fn: exportRiskExcel },
+  ];
+  const grid = document.createElement('div'); grid.className='grid cols-3';
+  items.forEach(it=>{
+    const p = document.createElement('div'); p.className='panel';
+    p.innerHTML = `<h3 style="margin:0 0 8px;font-size:15px;">${it.title}</h3><p class="muted" style="font-size:12.5px;min-height:36px;">${it.desc}</p><button class="btn small full">${t('btn_excel')}</button>`;
+    p.querySelector('button').onclick = it.fn;
+    grid.appendChild(p);
+  });
+  el.appendChild(grid);
+}
+function exportPortfolioExcel(){
+  const rows = [[t('col_id'), LANG==='tj'?'Мизоҷ':'Заёмщик', LANG==='tj'?'Маблағ':'Сумма', LANG==='tj'?'Фоиз %':'Ставка %', LANG==='tj'?'Мӯҳлат':'Срок', LANG==='tj'?'Санаи додан':'Дата выдачи', t('col_outstanding'), t('col_status')]];
+  LOANS.forEach(l=> rows.push([l.id, borrowerName(l.borrowerId), l.amount, l.rate, l.termMonths, l.issueDate, loanOutstanding(l), loanStatus(l)]));
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Portfolio');
+  XLSX.writeFile(wb, 'Azim_Credit_Portfolio.xlsx');
+}
+function exportScheduleExcel(){
+  const rows = [[t('col_id'), '#', LANG==='tj'?'Сана':'Дата', LANG==='tj'?'Асосӣ':'Осн.долг', LANG==='tj'?'Фоиз':'Проценты', LANG==='tj'?'Ҷамъ':'Итого', LANG==='tj'?'Ҳолат':'Статус']];
+  LOANS.forEach(l=>{
+    const sched = buildSchedule(l);
+    sched.forEach(s=>{
+      const paid = l.payments.find(p=>p.n===s.n);
+      rows.push([l.id, s.n, s.due.toISOString().slice(0,10), s.principal, s.interest, s.payment, paid?'paid':'pending']);
+    });
+  });
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Schedule');
+  XLSX.writeFile(wb, 'Azim_Credit_Schedule.xlsx');
+}
+
+/* ============================================================
+   GUIDE
+   ============================================================ */
+const GUIDE_SECTIONS = [
+  { icon:'📗', title:{tj:'Мафҳумҳои асосӣ', ru:'Основные понятия'}, body:{
+    tj:`<b>Azim Credit</b> системаи идоракунии қарзи ташкилоти қарзӣ мебошад, ки амалиётро аз лаҳзаи додани қарз то пӯшидани пурраи он пайгирӣ мекунад. Ҳисоби фоиз бо усули <b>аннуитетӣ</b> (фоиз аз мондаи қарз) сурат мегирад, ки мутобиқи мантиқи Дастурамали №255-и БМТ аст.`,
+    ru:`<b>Azim Credit</b> — система управления кредитами кредитной организации, отслеживающая операции от выдачи кредита до полного погашения. Расчёт процентов ведётся <b>аннуитетным методом</b> (проценты на остаток долга), что соответствует логике Инструкции №255 НБТ.` }},
+  { icon:'💳', title:{tj:'Додани кредити нав', ru:'Выдача нового кредита'}, body:{
+    tj:`Дар саҳифаи «Қарзҳо» тугмаи «Кредити нав»-ро пахш кунед, мизоҷ, маблағ, фоизи солона, мӯҳлат ва санаи доданро ворид кунед. Система худкор ҷадвали пардохтро месозад.`,
+    ru:`На странице «Кредиты» нажмите «Новый кредит», укажите заёмщика, сумму, годовую ставку, срок и дату выдачи. Система автоматически построит график платежей.` }},
+  { icon:'💰', title:{tj:'Қайди пардохт', ru:'Регистрация платежа'}, body:{
+    tj:`Дар рӯйхати қарзҳо, назди қарзи амалкунанда тугмаи «Пардохт»-ро пахш кунед. Система маблағи пардохти навбатиро (асосӣ + фоиз) нишон медиҳад — онро тасдиқ кунед.`,
+    ru:`В списке кредитов у активного кредита нажмите «Платёж». Система покажет сумму очередного платежа (основной долг + проценты) — подтвердите его.` }},
+  { icon:'⚑', title:{tj:'Таснифи хавф ва захираи ФПТИ (Дастурамали №215)', ru:'Классификация риска и резерв РВПС (Инструкция №215)'}, body:{
+    tj:`Ҳар қарз вобаста ба шумораи рӯзҳои кечиктиршуда ба яке аз панҷ категория тааллуқ мегирад: <b>Стандартӣ, Назоратӣ, Ғайристандартӣ, Шубҳанок, Талафотнок</b>. Барои ҳар категория фоизи муайяни захира истифода мешавад ва маблағи захира худкор дар саҳифаи «Таснифи хавф» ҳисоб карда мешавад.`,
+    ru:`Каждый кредит в зависимости от количества дней просрочки относится к одной из пяти категорий: <b>Стандартный, Под контролем, Субстандартный, Сомнительный, Безнадёжный</b>. Для каждой категории применяется определённая ставка резерва, сумма резерва рассчитывается автоматически на странице «Классификация риска».` }},
+  { icon:'⬇️', title:{tj:'Содироти Excel', ru:'Экспорт в Excel'}, body:{
+    tj:`Дар саҳифаи «Ҳисоботҳо» метавонед портфели қарзӣ, ҷадвали пардохт ва ҳисоботи ФПТИ-ро ба формати Excel содир кунед.`,
+    ru:`На странице «Отчёты» можно выгрузить кредитный портфель, график платежей и отчёт по РВПС в формате Excel.` }},
+];
+function renderGuide(el){
+  el.insertAdjacentHTML('beforeend', `<div class="topline"><div><h2>${t('nav_guide')}</h2><p class="sub">${LANG==='tj'?'Дастури кор бо система':'Руководство по работе с системой'}</p></div></div>`);
+  GUIDE_SECTIONS.forEach((sec,i)=>{
+    const panel = document.createElement('div'); panel.className='panel';
+    panel.innerHTML = `<details ${i===0?'open':''}>
+      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:20px;">${sec.icon}</span><h3 style="margin:0;font-size:15px;">${sec.title[LANG]}</h3>
+      </summary>
+      <p class="muted" style="font-size:13.5px;line-height:1.7;margin-top:12px;">${sec.body[LANG]}</p>
+    </details>`;
+    el.appendChild(panel);
+  });
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+(function boot(){
+  applyTheme();
+  applyStaticText();
+  document.getElementById('langTj').onclick=()=>setLang('tj');
+  document.getElementById('langRu').onclick=()=>setLang('ru');
+  document.getElementById('langTjLogin').onclick=()=>setLang('tj');
+  document.getElementById('langRuLogin').onclick=()=>setLang('ru');
+  document.getElementById('themeToggle').onclick=toggleTheme;
+  document.getElementById('themeToggleLogin').onclick=toggleTheme;
+  document.getElementById('loginBtn').onclick=doLogin;
+  document.getElementById('logoutBtn').onclick=doLogout;
+  document.getElementById('pwToggle').onclick=()=>{
+    const inp=document.getElementById('loginPass');
+    inp.type = inp.type==='password'?'text':'password';
+    document.getElementById('pwToggle').textContent = inp.type==='password'?'👁':'🙈';
+  };
+  setLang('tj');
+})();
+</script>
+</body>
+</html>
